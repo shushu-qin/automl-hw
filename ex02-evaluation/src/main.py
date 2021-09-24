@@ -86,10 +86,15 @@ def Friedman_test(errors):
     solving the following post hoc problems
     """
     n, k = errors.shape
-    rtotal_mean = np.mean(errors)
-    r_mean = np.mean(errors, axis=0)
+    
+    # Rank matrix
+    r = np.argsort(np.argsort(errors, axis=1), axis=1)
+    
+    rtotal_mean = np.mean(r)
+    r_mean = np.mean(r, axis=0)
     ss_total = n*np.sum(np.square(r_mean-rtotal_mean))
-    ss_error = 1.0/n/(k-1) * np.sum(np.square(errors-rtotal_mean))
+    ss_error = 1.0/n/(k-1) * np.sum(np.square(r-rtotal_mean))
+
     chi2_F = ss_total/ss_error
     FData_stats = {'errors': errors, 'Rj': r_mean}
     return chi2_F, FData_stats
@@ -107,7 +112,7 @@ def Nemenyi_test(FData_stats):
     Q_value = np.zeros((k, k), dtype=np.float16)
     inv = 1.0/np.sqrt(k*(k+1)/6/n)
     for i in range(k):
-        for j in range(i,k):
+        for j in range(i+1,k):
             q = (r_mean[i]-r_mean[j])
             Q_value[i,j] = q*inv
     return Q_value
@@ -115,10 +120,10 @@ def Nemenyi_test(FData_stats):
 
 def box_plot(FData_stats):
     """
-    TODO
     :param FData_stats: the statistical data of the Friedan test data to be utilized in the post hoc problems
     """
-    pass
+    errors = FData_stats['errors']
+    plt.boxplot(errors)
 
 
 def main(args):
