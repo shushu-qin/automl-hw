@@ -66,7 +66,7 @@ def hybrid_model(test_instances: List[str], algos: List[str], run_df: pd.DataFra
     """
     y_predictions = np.zeros((len(test_instances), len(algos)))
     X_train = feature_df.values[:, 1:]
-    # TODO DOING 
+    # TODO  
     # for each pair of algorithms, fit a model that classifies if outer outperforms inner.
     # Use voting to decide which algorithm solves which instance
     for idx_outer, algo_outer in enumerate(algos):
