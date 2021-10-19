@@ -16,7 +16,7 @@ class TestSimpleHPO(unittest.TestCase):
         # We simply test if we always come close to the optimum
         all_configs = []
         all_perfs = []
-        for i in range(50):  # we evaluate over multiple seeds to get a better estimate of the true performance
+        for i in range(1):  # we evaluate over multiple seeds to get a better estimate of the true performance
             config, perf = determine_best_hypers()
             # Configs have to be tuples in the following order (Mutation, Selection, Recombination)
             all_configs.append(np.array(config))

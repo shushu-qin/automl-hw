@@ -192,27 +192,31 @@ class EA:
         :return: list of ids of selected parents.
         """
         parent_ids = []
+        mu = self.num_children
         if self.selection == ParentSelection.NEUTRAL:
-            id = random.randint(0, self.pop_size)
-            parent_ids.append(id)
+            for i in range(mu):
+                id = random.randint(0, self.pop_size)
+                parent_ids.append(id)
         elif self.selection == ParentSelection.FITNESS:
-            max = sum([c.fitness for c in self.population])
-            pick = random.uniform(0, max)
-            current = 0
-            for id, member in zip(range(self.pop_size), self.population):
-                current+= member.fitness
-                if current > pick:
-                    parent_ids.append(self.pop_size-1-id)
-                    break
+            for i in range(mu):
+                max = sum([c.fitness for c in self.population])
+                pick = random.uniform(0, max)
+                current = 0
+                for id, member in zip(range(self.pop_size), self.population):
+                    current+= member.fitness
+                    if current > pick:
+                        parent_ids.append(self.pop_size-1-id)
+                        break
         elif self.selection == ParentSelection.TOURNAMENT:
-            tournament_size = 5
-            if self.pop_size <= tournament_size:
-                parent_ids.append(0)
-            else:
-                arr = np.array([1]*tournament_size + [0] * (self.pop_size-tournament_size))
-                np.random.shuffle(arr)
-                one_idx= np.where(arr==1)
-                parent_ids.append(one_idx[0][0])
+            for i in range(mu):
+                tournament_size = 5
+                if self.pop_size <= tournament_size:
+                    parent_ids.append(0)
+                else:
+                    arr = np.array([1]*tournament_size + [0] * (self.pop_size-tournament_size))
+                    np.random.shuffle(arr)
+                    one_idx= np.where(arr==1)
+                    parent_ids.append(one_idx[0][0])
         else:
             raise NotImplementedError
         self.logger.debug('Selected parents:')
@@ -229,11 +233,14 @@ class EA:
 
         # Step 3: Variation / create offspring
         children = []
-        for id in np.nditer(parent_ids):
+        for id in parent_ids:
             # for each parent create exactly one offspring (use the frac_mutants) parameter to determine
             # if more recombination or mutation should be performed
             parent = self.population[id]
             new_pop = parent.mutate()
+            
+            if np.random.uniform(0., 1., 1) < self.frac_mutants:
+                new_pop = parent.recombine(new_pop)
             children.append(new_pop)
             self._func_evals += 1
         self.logger.debug('Children:')
@@ -255,9 +262,9 @@ class EA:
         step = 1
         while self._func_evals < self.max_func_evals:
             avg_fitness = self.step()
-            # self.logger.info(
-            #     'Step {:>3d} | Average fitness {:>10.7f} | Best fitness {:>10.7f} | #Func Evals: {:>4d}'.format(
-            #         step, avg_fitness, self.population[0].fitness, self._func_evals))
+            self.logger.info(
+                'Step {:>3d} | Average fitness {:>10.7f} | Best fitness {:>10.7f} | #Func Evals: {:>4d}'.format(
+                    step, avg_fitness, self.population[0].fitness, self._func_evals))
             step += 1
         return self.population[0]
 

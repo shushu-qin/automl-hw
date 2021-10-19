@@ -30,17 +30,17 @@ def determine_best_hypers():
 
     :return: best configuration as tuple e.g. (mutation, selection, recombination) and performance value
     """
-    recombinations = [-1, 0, 1]
-    mutations = [-1, 0, 1]
-    parent_selections = [0, 1, 2]
-    best_setting = [-1, 0, -1]
-    best_perf = 0
+    recombinations = [Recombination.NONE, Recombination.UNIFORM, Recombination.INTERMEDIATE]
+    mutations = [Mutation.NONE, Mutation.UNIFORM, Mutation.GAUSSIAN]
+    parent_selections = [ParentSelection.NEUTRAL, ParentSelection.FITNESS, ParentSelection.TOURNAMENT]
+    best_setting = None
+    best_perf = None
     # Grid search
     for recombination in recombinations:
         for mutation in mutations:
             for parent_selction in parent_selections:
                 perf = evaluate_black_box(mutation, parent_selction, recombination)
-                if perf > best_perf:
+                if perf < best_perf or best_setting==None:
                     best_setting = [mutation, parent_selction, recombination]
                     best_perf = perf
 
